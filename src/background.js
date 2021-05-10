@@ -1,21 +1,25 @@
 'use strict';
 
-// With background scripts you can communicate with popup
-// and contentScript files.
-// For more information on background script,
-// See https://developer.chrome.com/extensions/background_pages
+chrome.action.onClicked.addListener(async tab => {
+  // get all unpinned tabs in current window
+  const tabs = await chrome.tabs.query({ currentWindow: true, pinned: false });
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === 'GREETINGS') {
-    const message = `Hi ${
-      sender.tab ? 'Con' : 'Pop'
-    }, my name is Bac. I am from Background. It's great to hear from you.`;
+  // get ids of all tabs
+  let ids = [];
+  tabs.forEach((el, i) => {
+      ids.push(el.id);
+  });
 
-    // Log message coming from the `request` parameter
-    console.log(request.payload.message);
-    // Send a response message
-    sendResponse({
-      message,
-    });
-  }
+  // save opened tabs in storage
+  await chrome.storage.local.set({ tabs: tabs });
+
+  // close all tabs
+  // await chrome.tabs.remove(ids);
+
+  // open homepage
+  chrome.tabs.create({
+    url: 'index.html',
+    pinned: true,
+  });
+
 });

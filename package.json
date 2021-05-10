@@ -1,20 +1,27 @@
 {
-  "name": "ext",
+  "name": "Hordie",
   "version": "0.1.0",
-  "description": "My Chrome Extension",
+  "description": "Horde your tabs for later",
   "private": true,
   "scripts": {
     "watch": "webpack --mode=development --watch --config config/webpack.config.js",
     "build": "webpack --mode=production --config config/webpack.config.js"
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.138",
     "copy-webpack-plugin": "^6.4.1",
     "css-loader": "^4.3.0",
     "file-loader": "^6.2.0",
     "mini-css-extract-plugin": "^0.10.1",
+    "sass": "^1.32.12",
+    "sass-loader": "^11.1.0",
     "size-plugin": "^2.0.2",
-    "webpack": "^4.46.0",
-    "webpack-cli": "^3.3.12",
+    "webpack": "^5.36.2",
+    "webpack-cli": "^4.7.0",
     "webpack-merge": "^5.7.3"
+  },
+  "dependencies": {
+    "canvg": "^3.0.7",
+    "lit-element": "^2.5.1"
   }
 }
