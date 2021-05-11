@@ -8,9 +8,9 @@ const PATHS = require('./paths');
 // Merge webpack configuration files
 const config = merge(common, {
   entry: {
-    popup: PATHS.src + '/popup.js',
     index: PATHS.src + '/index.js',
     background: PATHS.src + '/background.js',
+    app: PATHS.src + '/App.svelte',
   },
 });
 

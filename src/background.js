@@ -1,6 +1,7 @@
 'use strict';
 
 chrome.action.onClicked.addListener(async tab => {
+  // printURL();
   // get all unpinned tabs in current window
   const tabs = await chrome.tabs.query({ currentWindow: true, pinned: false });
 
@@ -16,47 +17,42 @@ chrome.action.onClicked.addListener(async tab => {
   // close all tabs
   // await chrome.tabs.remove(ids);
 
-  chrome.storage.local.get(['indexId'], props => {
-    const indexId = props.indexId;
+  chrome.storage.local.get(['indexURL'], async props => {
+    const indexURL = props.indexURL;
+    console.log(indexURL);
+    const [indexTab] = await chrome.tabs.query({ url: indexURL });
 
-    if (indexId === undefined) {
+    if (indexTab === undefined) {
       // open homepage
       chrome.tabs.create({
         url: 'index.html',
         pinned: true,
-      }, tab => {
-        console.log(tab.id);
-        chrome.storage.local.set({ indexId: tab.id })
       });
     } else {
-      try {
-        // update homepage
-        chrome.tabs.update(indexId, {
-          url: 'index.html',
-          pinned: true
-        });
-      } catch (e) {
-        console.error(e);
-        chrome.storage.local.remove(['indexId']);
-      }
+      chrome.tabs.update(indexTab.id, {
+        url: 'index.html',
+        pinned: true
+      });
     }
   });  
 });
 
 function setTabsData(tabs) {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.set({ tabs: tabs }, () => {
+    chrome.storage.local.get(['tabs'], async props => {
       if (chrome.runtime.lastError) {
         return reject(chrome.runtime.lastError);
       }
-      resolve();
-    });
-  })
-}
 
-chrome.tabs.onRemoved.addListener(async (tabId, info) => {
-  const indexId = await chrome.storage.local.get(['indexId']);
-  if (tabId === indexId) {
-    chrome.storage.local.remove(['indexId']);
-  }
-});
+      const formerTabs = props.tabs;
+      const allTabs = formerTabs.concat(tabs);
+
+      chrome.storage.local.set({ tabs: allTabs }, () => {
+        if (chrome.runtime.lastError) {
+          return reject(chrome.runtime.lastError);
+        }
+        resolve();
+      });
+    });
+  });
+}

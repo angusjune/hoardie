@@ -16,12 +16,15 @@
     "sass": "^1.32.12",
     "sass-loader": "^11.1.0",
     "size-plugin": "^2.0.2",
+    "svelte": "^3.38.2",
+    "svelte-loader": "^3.1.1",
     "webpack": "^5.36.2",
     "webpack-cli": "^4.7.0",
     "webpack-merge": "^5.7.3"
   },
   "dependencies": {
     "canvg": "^3.0.7",
+    "date-fns": "^2.21.3",
     "lit-element": "^2.5.1"
   }
 }
