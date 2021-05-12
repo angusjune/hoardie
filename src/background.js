@@ -69,7 +69,7 @@ function setTabsData(newTabInfo) {
         createdTime: Date.now(),
       };
 
-      const allTabGroups = newTabGroup.concat(formerTabGroups);
+      const allTabGroups = [newTabGroup].concat(formerTabGroups);
 
       chrome.storage.local.set({ tabGroups: allTabGroups }, () => {
         if (chrome.runtime.lastError) {

@@ -10,49 +10,71 @@
     let url = tabInfo.url;
     let iconalt;
 
-    function onClick() {
-        dispatch('message', {
-            id: id,
-            url: url,
-        });
+    let pinned = false;
+
+    function onClickList() {
+      dispatch('message', {
+        action: 'OPEN',
+        id: id,
+        url: url,
+        pinned: pinned,
+      });
     }
+
+    function onClickClear() {
+      dispatch('message', {
+        action: 'CLEAR',
+        id: id
+      });
+    }
+
+    function onClickPin() {}
 </script>
 
-<style>
-    .tab-list {
-        position: relative;
-        width: 100%;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        width: 100%;
-        padding-inline-start: 16px;
-        padding-inline-end: 16px;
-        padding-top: 12px;
-        padding-bottom: 12px;
-        color: #000;
-        line-height: 18px;
-        cursor: pointer;
-      }
-      .tab-list__icon {
-        display: block;
-        width: 18px;
-        height: 18px;
-        margin-right: 12px;
-        overflow: hidden;
-      }
-      .tab-list__icon img {
-        width: 100%;
-      }
-      .tab-list__title {
-        flex: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
+<style lang="scss">
+  $theme-secondary: #E9F0FD;
+  .tab-list {
+    font-size: 14px;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding-inline-start: 32px;
+    padding-inline-end: 32px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    line-height: 24px;
+    cursor: pointer;
+
+    &:hover {
+      background: $theme-secondary;
+    }
+  }
+  .tab-list__icon {
+    display: block;
+    width: 18px;
+    height: 18px;
+    margin-right: 12px;
+    overflow: hidden;
+  }
+  .tab-list__icon img {
+    width: 100%;
+  }
+  .tab-list__title {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 </style>
 
-<div class="tab-list" on:click={onClick}>
+<div class="tab-list" on:click={onClickList}>
     <span class="tab-list__icon"><img src={favIconUrl} alt={iconalt} loading="lazy"/></span>
     <span class="tab-list__title"><slot></slot></span>
+    <ul class="tab-list__menu">
+      <li class="tab-list__menu-item"><button hidden={pinned} on:click|stopPropagation={onClickClear}>Clr</button></li>
+      <li class="tab-list__menu-item"><label class="toggle-pin" for="pin" on:click|stopPropagation={onClickPin}><input bind:checked={pinned} type="checkbox" id="pin"></label></li>
+    </ul>
 </div>

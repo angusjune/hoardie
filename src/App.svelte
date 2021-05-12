@@ -35,8 +35,14 @@
             if (matchedTab !== undefined) {
                 // remove tab from group
                 group.tabs.splice(group.tabs.indexOf(matchedTab), 1);
-                // replace with new group
-                tabGroups.splice(i, 1, group);
+
+                if (group.tabs.length < 1) {
+                    // if no more tabs in the group, remove the entire group
+                    tabGroups.splice(i, 1);
+                } else {
+                    // replace with new group
+                    tabGroups.splice(i, 1, group);
+                }
 
                 chrome.storage.local.set({ tabGroups: tabGroups });
                 return;
@@ -68,9 +74,15 @@
     function onMessageList(e) {
         const tabId = e.detail.id;
         const url   = e.detail.url;
+        const action = e.detail.action;
+        const pinned = e.detail.pinned;
 
-        openTab(url);
-        clearList(tabId);
+        if ('OPEN' === action) {
+            openTab(url);
+        }
+        if (!pinned) {
+            clearList(tabId);
+        }
     }
 
     chrome.storage.onChanged.addListener(changes => {
@@ -80,21 +92,48 @@
     });
 </script>
 
-<ul>
-    {#each tabGroups as group (group.id)}
-    <section>
-        <h6>{group.createdTime}</h6>
-        <h6>{group.tabs.length}</h6>
-        <button on:click={onClickClearGroup} data-group-id={group.id}>Clear group</button>
-        <button on:click={onClickOpenTabsInGroup} data-group-id={group.id}>Open group</button>
+<style lang="scss">
+    $background: #F2F4F5;
+    $surface: #fff;
+    $primary: #333;
+    $secondary: #666;
+    $theme: #5285EC;
+    $theme-secondary: #E9F0FD;
 
-        {#each group.tabs as tab (tab.id)}
-            <TabList {...tab} on:message={onMessageList}>{tab.tabInfo.title}</TabList>
+    :global(body) {
+        background: $background;
+        color: $primary;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 800px;
+        margin: auto;
+        padding: 64px 0;
+    }
+    .card {
+        background: $surface;
+        border-radius: 8px;
+        margin-bottom: 16px;
+    }
+</style>
+
+<div class="container">
+    <main class="main">
+        {#each tabGroups as group (group.id)}
+        <section class="card">
+            <h2 class="group-title">{group.tabs.length} <span data-msg="tabs">{group.tabs.length <= 1 ? "Tab" : "Tabs"}</span></h2>
+            <h6>{group.createdTime}</h6>
+            
+            <button on:click={onClickClearGroup} data-group-id={group.id}>Clear group</button>
+            <button on:click={onClickOpenTabsInGroup} data-group-id={group.id}>Open group</button>
+    
+            {#each group.tabs as tab (tab.id)}
+                <TabList {...tab} on:message={onMessageList}>{tab.tabInfo.title}</TabList>
+            {/each}
+        </section>
         {/each}
-
-        <hr>
-    </section>
-    {/each}
-</ul>
+    </main>
+</div>
 
 <button id="btnClearAll" on:click={clearAll}>Clear All</button>

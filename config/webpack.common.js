@@ -36,7 +36,12 @@ const common = {
     rules: [
       {
         test: /\.(html|svelte)$/,
-        use: 'svelte-loader'
+        use: {
+          loader: 'svelte-loader',
+          options: {
+            preprocess: require('svelte-preprocess')({})
+          }
+        }
       },
       {
         // required to prevent errors from Svelte on Webpack 5+, omit on Webpack 4
