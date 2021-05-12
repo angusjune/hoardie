@@ -13,12 +13,18 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Horde tabs"
+    "default_title": "Horde tabs",
+    "default_icon": {
+      "16": "icons/filter-16.png",
+      "24": "icons/filter-24.png",
+      "32": "icons/filter-32.png"
+    }
   },
   "permissions": [
     "storage",
     "tabs",
-    "tabGroups"
+    "tabGroups",
+    "contextMenus"
   ],
   "minimum_chrome_version": "89"
 }

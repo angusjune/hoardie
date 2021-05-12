@@ -1,7 +1,8 @@
 'use strict';
 
+import { uuid } from './utils.js';
+
 chrome.action.onClicked.addListener(async tab => {
-  // printURL();
   // get all unpinned tabs in current window
   const tabs = await chrome.tabs.query({ currentWindow: true, pinned: false });
 
@@ -15,7 +16,7 @@ chrome.action.onClicked.addListener(async tab => {
   await setTabsData(tabs);
 
   // close all tabs
-  // await chrome.tabs.remove(ids);
+  await chrome.tabs.remove(ids);
 
   chrome.storage.local.get(['indexURL'], async props => {
     const indexURL = props.indexURL;
@@ -37,17 +38,40 @@ chrome.action.onClicked.addListener(async tab => {
   });  
 });
 
-function setTabsData(tabs) {
+function setTabsData(newTabInfo) {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.get(['tabs'], async props => {
+    chrome.storage.local.get({
+      tabGroups: []
+    }, async props => {
       if (chrome.runtime.lastError) {
         return reject(chrome.runtime.lastError);
       }
 
-      const formerTabs = props.tabs;
-      const allTabs = formerTabs.concat(tabs);
+      const formerTabGroups = props.tabGroups;
 
-      chrome.storage.local.set({ tabs: allTabs }, () => {
+      let newTabs = [];
+
+      // add uuid to all tabs
+      newTabInfo.forEach((tabInfo, i) => {
+        // exclude empty tabs
+        if (tabInfo.url !== 'chrome://newtab') {
+          const tab = {
+            id: uuid(),
+            tabInfo: tabInfo
+          };
+          newTabs.push(tab);
+        }
+      });
+
+      const newTabGroup = {
+        id: uuid(),
+        tabs: newTabs,
+        createdTime: Date.now(),
+      };
+
+      const allTabGroups = newTabGroup.concat(formerTabGroups);
+
+      chrome.storage.local.set({ tabGroups: allTabGroups }, () => {
         if (chrome.runtime.lastError) {
           return reject(chrome.runtime.lastError);
         }
