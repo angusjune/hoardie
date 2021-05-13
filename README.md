@@ -1,6 +1,6 @@
-# <img src="public/icons/icon_48.png" width="45" align="left"> Hordie
+# <img src="public/icons/icon_48.png" width="45" align="left"> Hoardie
 
-Horde you tabs for later
+One click to hoard your tabs in a single page.
 
 ## Install
 

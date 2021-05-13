@@ -1,7 +1,8 @@
 <script>
-    import { formatDistanceToNowStrict } from 'date-fns';
+    import { format, formatDistanceToNow } from 'date-fns';
     import { zhCN } from 'date-fns/locale';
     import TabList from './TabList.svelte';
+    import IconButton from './IconButton.svelte';
 
     const url = chrome.runtime.getURL('index.html');
     chrome.storage.local.set({ indexURL: url });
@@ -21,18 +22,20 @@
     }
 
     function openTabsInGroup(groupId) {
-        const [matchedGroup] = tabGroups.filter(el => el.id === groupId);
+        const matchedGroup = tabGroups.find(el => el.id === groupId);
         matchedGroup.tabs.forEach(tab => {
             openTab(tab.tabInfo.url);
         });
-        clearGroup(groupId);
+        removeGroup(groupId);
     }
 
-    function clearList(tabId) {
+    function removeList(tabId) {
         tabGroups.forEach((group, i) => {
-            const [matchedTab] = group.tabs.filter(el => el.id === tabId);
+            const matchedTab = group.tabs.find(el => el.id === tabId);
 
             if (matchedTab !== undefined) {
+                // do not remove a pinned tab
+                if (matchedTab.pinned) return;
                 // remove tab from group
                 group.tabs.splice(group.tabs.indexOf(matchedTab), 1);
 
@@ -50,42 +53,92 @@
         });
     }
 
-    function clearGroup(groupId) {
-        const [matchedGroup] = tabGroups.filter(el => el.id === groupId);
-        tabGroups.splice(tabGroups.indexOf(matchedGroup), 1);
+    /**
+     * 
+     * @param {string} groupId
+     * @param {boolean} force if force is true, pinned tabs in the group will also be removed
+     */
+    function removeGroup(groupId, force = false) {
+        const matchedGroup = tabGroups.find(el => el.id === groupId);
+        if (force) {
+            tabGroups.splice(tabGroups.indexOf(matchedGroup), 1);
+        } else {
+            let newTabs = [];
+
+            matchedGroup.tabs.forEach(tab => {
+                if (tab.pinned) {
+                    newTabs.push(tab);
+                }
+            });
+            
+            if (newTabs.length <= 0) {
+                tabGroups.splice(tabGroups.indexOf(matchedGroup), 1);
+            } else {
+                matchedGroup.tabs = newTabs;
+                tabGroups.splice(tabGroups.indexOf(matchedGroup), 1, matchedGroup);
+            }
+        }
 
         chrome.storage.local.set({ tabGroups: tabGroups });
     }
 
-    function clearAll() {
+    function removeAll() {
         chrome.storage.local.set({ tabGroups: [] });
     }
 
     function onClickOpenTabsInGroup(e) {
-        const groupId = e.target.dataset.groupId;
+        const groupId = e.detail.target.dataset.id;
         openTabsInGroup(groupId)
     }
 
-    function onClickClearGroup(e) {
-        const groupId = e.target.dataset.groupId;
-        clearGroup(groupId);
+    function onClickRemoveGroup(e) {
+        const groupId = e.detail.target.dataset.id;
+        removeGroup(groupId);
     }
 
-    function onMessageList(e) {
+    function onClickList(e) {
         const tabId = e.detail.id;
         const url   = e.detail.url;
-        const action = e.detail.action;
         const pinned = e.detail.pinned;
 
-        if ('OPEN' === action) {
-            openTab(url);
-        }
+        openTab(url);
         if (!pinned) {
-            clearList(tabId);
+            removeList(tabId);
         }
     }
 
-    chrome.storage.onChanged.addListener(changes => {
+    function onRemoveList(e) {
+        const tabId = e.detail.id;
+        removeList(tabId);
+    }
+
+    function onPinChangeList(e) {
+        const tabId = e.detail.id;
+        const pinned = e.detail.pinned;
+
+        tabGroups.forEach(group => {
+            group.tabs.forEach(tab => {
+                if (tab.id === tabId) {
+                    tab.pinned = pinned;
+                }
+            });
+        });
+
+        chrome.storage.local.set({ tabGroups: tabGroups });
+    }
+
+    function humanReadableDate(comparisonDate) {
+        const lang = chrome.i18n.getUILanguage();
+        let result;
+        if (lang === 'zh-CN') {
+            result = formatDistanceToNow(comparisonDate, { locale: zhCN});
+        } else {
+            result = formatDistanceToNow(comparisonDate);
+        }
+        return result;
+    }
+
+    chrome.storage.onChanged.addListener(async changes => {
         if (changes.tabGroups) {
             tabGroups = changes.tabGroups.newValue;
         }
@@ -93,16 +146,11 @@
 </script>
 
 <style lang="scss">
-    $background: #F2F4F5;
-    $surface: #fff;
-    $primary: #333;
-    $secondary: #666;
-    $theme: #5285EC;
-    $theme-secondary: #E9F0FD;
+    @use 'base';
 
     :global(body) {
-        background: $background;
-        color: $primary;
+        background: base.$background;
+        color: base.$primary;
     }
 
     .container {
@@ -112,9 +160,63 @@
         padding: 64px 0;
     }
     .card {
-        background: $surface;
+        background: base.$surface;
         border-radius: 8px;
         margin-bottom: 16px;
+
+        &:hover .header__menu {
+            opacity: 1;
+        }
+    }
+
+    .header {
+        padding: 24px 32px 0 32px;
+        
+        &__title-wrapper {
+            display: flex;
+        }
+
+        &__title {
+            flex: 1;
+            margin: 0;
+            padding: 0;
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        &__subtitle {
+            font-size: 14px;
+            color: base.$secondary;
+            font-weight: normal;
+            margin: 4px 0 0 0;
+            display: inline-block;
+        }
+
+        &__subtitle-desc {
+            opacity: 0;
+            transition: opacity 0.1s;
+
+            .header__subtitle:hover & {
+                opacity: 1;
+            }
+        }
+
+        &__menu {
+            height: 24px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            opacity: 0;
+        }
+
+        &__menu-item {
+            display: inline-block;
+            margin-left: 16px;
+        }
+    }
+
+    .tab-lists {
+        padding: 16px 0;
     }
 </style>
 
@@ -122,18 +224,35 @@
     <main class="main">
         {#each tabGroups as group (group.id)}
         <section class="card">
-            <h2 class="group-title">{group.tabs.length} <span data-msg="tabs">{group.tabs.length <= 1 ? "Tab" : "Tabs"}</span></h2>
-            <h6>{group.createdTime}</h6>
+
+            <header class="header">
+                <div class="header__title-wrapper">
+                    <h2 class="header__title">{group.tabs.length} <span data-msg="tabs">{group.tabs.length <= 1 ? "Tab" : "Tabs"}</span></h2>
+                    <ul class="header__menu">
+                        <li class="header__menu-item">
+                            <IconButton ariaLabel="clear all" on:click={onClickRemoveGroup} dataId={group.id}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 16H19V18H15V16ZM15 8H22V10H15V8ZM15 12H21V14H15V12ZM3 18C3 19.1 3.9 20 5 20H11C12.1 20 13 19.1 13 18V8H3V18ZM5 10H11V18H5V10ZM10 4H6L5 5H2V7H14V5H11L10 4Z" fill="#444444"/></svg>                                    
+                            </IconButton>
+                        </li>
+                        <li class="header__menu-item">
+                            <IconButton ariaLabel="open all tabs" on:click={onClickOpenTabsInGroup} dataId={group.id}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 4H5C3.89 4 3 4.9 3 6V18C3 19.1 3.89 20 5 20H9V18H5V8H19V18H15V20H19C20.1 20 21 19.1 21 18V6C21 4.9 20.11 4 19 4ZM12 10L8 14H11V20H13V14H16L12 10Z" fill="#444444"/></svg>                                    
+                            </IconButton>
+                        </li>
+                    </ul>
+                </div>
+                <h6 class="header__subtitle">{humanReadableDate(new Date(group.createdTime))} <time class="header__subtitle-desc"> - {format(new Date(group.createdTime), 'yyyy/MM/dd HH:mm:ss')}</time></h6>    
+            </header>
             
-            <button on:click={onClickClearGroup} data-group-id={group.id}>Clear group</button>
-            <button on:click={onClickOpenTabsInGroup} data-group-id={group.id}>Open group</button>
-    
-            {#each group.tabs as tab (tab.id)}
-                <TabList {...tab} on:message={onMessageList}>{tab.tabInfo.title}</TabList>
-            {/each}
+            <div class="tab-lists">
+                {#each group.tabs as tab (tab.id)}
+                    <TabList {...tab} on:click={onClickList} on:remove={onRemoveList} on:pinChange={onPinChangeList}>{tab.tabInfo.title}</TabList>
+                {/each}
+            </div>
+
         </section>
         {/each}
     </main>
 </div>
 
-<button id="btnClearAll" on:click={clearAll}>Clear All</button>
+<!-- <button id="btnClearAll" on:click={removeAll}>Clear All</button> -->

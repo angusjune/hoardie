@@ -1,0 +1,29 @@
+{
+    "ext_name": {
+        "message": "Hoardie - Reduce Tab Clutter"
+    },
+    "ext_desc": {
+        "message": "One click to hoard your tabs in a single page."
+    },
+    "ext_action_title": {
+        "message": "Hoard all Tabs"
+    },
+    "ext_menu_display": {
+        "message": "Display Hoardie"
+    },
+    "remove_all": {
+        "message": "remove all tabs"
+    },
+    "open_all": {
+        "message": "open all tabs"
+    },
+    "pin": {
+        "message": "pin"
+    },
+    "remove": {
+        "message": "remove"
+    },
+    "tab": {
+        "message": "tab"
+    }
+}
