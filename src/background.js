@@ -26,37 +26,38 @@ chrome.contextMenus.onClicked.addListener(info => {
 });
 
 chrome.action.onClicked.addListener(async tab => {
-  hoard();
+  await hoard();
 });
 
 async function hoard() {
   // get all unpinned tabs in current window
   const tabs = await chrome.tabs.query({ currentWindow: true, pinned: false });
 
-  // get ids of all tabs
-  let ids = [];
-  let usefulTabs = [];
-  tabs.forEach((el, i) => {
-      ids.push(el.id);
-      // exclude unwanted tabs;
-      if (el.url !== 'chrome://newtab/') {
-        usefulTabs.push(el);
-      }
-  });
-
-  // close all tabs
-  await chrome.tabs.remove(ids);
-
-  if(usefulTabs.length > 0) {
-    // save opened tabs in storage
-    await setTabsData(usefulTabs);
-  } else { return; }
-
   chrome.storage.local.get(['indexURL'], async props => {
     const indexURL = props.indexURL;
     const [indexTab] = await chrome.tabs.query({ url: indexURL });
+    
+    // get ids of all tabs
+    let ids = [];
+    let usefulTabs = [];
+    tabs.forEach((el, i) => {
+        ids.push(el.id);
+        // exclude empty tabs;
+        if (el.url !== 'chrome://newtab/') {
+          usefulTabs.push(el);
+        }
+    });
 
-    openIndex(indexTab);
+    // close all tabs
+    chrome.tabs.remove(ids);
+
+    if(usefulTabs.length > 0) {
+      // save opened tabs in storage
+      await setTabsData(usefulTabs);
+      openIndex(indexTab);
+    } else {
+      openIndex(indexTab);
+    }
   }); 
 }
 
@@ -66,11 +67,6 @@ function openIndex(indexTab) {
     chrome.tabs.create({
       url: 'index.html',
       pinned: true,
-    });
-  } else {
-    chrome.tabs.update(indexTab.id, {
-      url: 'index.html',
-      pinned: true
     });
   }
 }

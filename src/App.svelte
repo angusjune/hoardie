@@ -147,10 +147,15 @@
 
 <style lang="scss">
     @use 'base';
+    @include base.themed();
 
     :global(body) {
-        background: base.$background;
-        color: base.$primary;
+        /* background: base.$background; */
+        /* color: base.$primary; */
+        @include themed() {
+            color: t($primary);
+            background: t($background);
+        }
     }
 
     .container {

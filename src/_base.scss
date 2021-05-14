@@ -5,3 +5,40 @@ $primary: #333 !default;
 $secondary: #666 !default;
 $theme: #5285EC !default;
 $theme-secondary: #E9F0FD !default;
+
+$themes: (
+    default: (
+        $background: #F2F4F5,
+        $surface: #fff,
+        $primary: #333,
+        $secondary: #666,
+        $theme: #5285EC,
+        $theme-secondary: #E9F0FD
+    ),
+    dark: (
+        $background: #111,
+        $surface: #333,
+        $primary: #fff,
+        $secondary: #ddd,
+        $theme: #8cb6f6,
+        $theme-secondary: #E9F0FD
+    )
+);
+
+@mixin themed() {
+    @each $theme, $map in $themes {
+        .theme--#{$theme} & {
+        $theme-map: () !global;
+        @each $key, $submap in $map {
+            $value: map-get(map-get($themes, $theme), '#{$key}');
+            $theme-map: map-merge($theme-map, ($key: $value)) !global;
+        }
+        @content;
+            $theme-map: null !global;
+        }
+    }
+}
+
+@function t($key) {
+    @return map-get($theme-map, $key);
+}
