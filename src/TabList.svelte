@@ -33,8 +33,6 @@
 </script>
 
 <style lang="scss">
-    @use 'base';
-
     .tab-list {
         font-size: 14px;
         position: relative;
@@ -51,7 +49,7 @@
         cursor: pointer;
 
         &:hover {
-            background: base.$theme-secondary;
+            background: var(--theme-secondary);
         }
     }
 
@@ -108,7 +106,7 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background-color: rgba(0,0,0,0.035);
+            background-color: var(--ripple);
         }
 
         &:before {
@@ -136,7 +134,7 @@
             width: 100%;
             height: 100%;
 
-            & .icon-pinned {
+            .icon-pinned {
                 position: absolute;
                 left: 0;
                 top: 0;
@@ -148,10 +146,10 @@
             display: none;
 
             &:checked ~ .toggle-pin__content {
-                & .icon-unpinned {
+                .icon-unpinned {
                     opacity: 0;
                 }
-                & .icon-pinned {
+                .icon-pinned {
                     opacity: 1;
                 }
             }
@@ -165,14 +163,14 @@
     <ul class="tab-list__menu">
       <li class="tab-list__menu-item">
         <IconButton ariaLabel="clear" on:click={onClickRemove} hidden={pinned} stopPropagation={true}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" fill="#444444"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" fill="var(--icon-ink)"/></svg>
         </IconButton></li>
         <li class="tab-list__menu-item">
             <label class="toggle-pin" for={"pin-" + id} on:click|stopPropagation={onClickPin}>
                 <input bind:checked={pinned} type="checkbox" id={"pin-" + id} on:change={onChangePin}>
                 <i class="toggle-pin__content">
-                    <span class="icon-unpinned"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 4V9C14 10.12 14.37 11.16 15 12H9C9.65 11.14 10 10.1 10 9V4H14ZM17 2H7C6.45 2 6 2.45 6 3C6 3.55 6.45 4 7 4H8V9C8 10.66 6.66 12 5 12V14H10.97V21L11.97 22L12.97 21V14H19V12C17.34 12 16 10.66 16 9V4H17C17.55 4 18 3.55 18 3C18 2.45 17.55 2 17 2Z" fill="#444444"/></svg></span>
-                    <span class="icon-pinned"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M16 9V4H17C17.55 4 18 3.55 18 3C18 2.45 17.55 2 17 2H7C6.45 2 6 2.45 6 3C6 3.55 6.45 4 7 4H8V9C8 10.66 6.66 12 5 12V14H10.97V21L11.97 22L12.97 21V14H19V12C17.34 12 16 10.66 16 9Z" fill="#5285EC"/></svg></span>
+                    <span class="icon-unpinned"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 4V9C14 10.12 14.37 11.16 15 12H9C9.65 11.14 10 10.1 10 9V4H14ZM17 2H7C6.45 2 6 2.45 6 3C6 3.55 6.45 4 7 4H8V9C8 10.66 6.66 12 5 12V14H10.97V21L11.97 22L12.97 21V14H19V12C17.34 12 16 10.66 16 9V4H17C17.55 4 18 3.55 18 3C18 2.45 17.55 2 17 2Z" fill="var(--icon-ink)"/></svg></span>
+                    <span class="icon-pinned"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M16 9V4H17C17.55 4 18 3.55 18 3C18 2.45 17.55 2 17 2H7C6.45 2 6 2.45 6 3C6 3.55 6.45 4 7 4H8V9C8 10.66 6.66 12 5 12V14H10.97V21L11.97 22L12.97 21V14H19V12C17.34 12 16 10.66 16 9Z" fill="var(--theme)"/></svg></span>
                 </i>
             </label>
         </li>

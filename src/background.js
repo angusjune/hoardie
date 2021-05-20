@@ -1,6 +1,6 @@
 'use strict';
 
-import { uuid } from './utils.js';
+import { createTabGroup, createTab } from './data.js';
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
@@ -16,10 +16,9 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.contextMenus.onClicked.addListener(info => {
-  console.log(info);
-  const menuId = info.parentMenuItemId;
+  const menuId = info.menuItemId;
   if (menuId === 'openIndex') {
-
+    openIndex(true);
   } else if (menuId === 'saveTabs') {
     hoard();
   }
@@ -32,10 +31,6 @@ chrome.action.onClicked.addListener(async tab => {
 async function hoard() {
   // get all unpinned tabs in current window
   const tabs = await chrome.tabs.query({ currentWindow: true, pinned: false });
-
-  chrome.storage.local.get(['indexURL'], async props => {
-    const indexURL = props.indexURL;
-    const [indexTab] = await chrome.tabs.query({ url: indexURL });
     
     // get ids of all tabs
     let ids = [];
@@ -48,27 +43,42 @@ async function hoard() {
         }
     });
 
-    // close all tabs
-    chrome.tabs.remove(ids);
-
     if(usefulTabs.length > 0) {
       // save opened tabs in storage
       await setTabsData(usefulTabs);
-      openIndex(indexTab);
-    } else {
-      openIndex(indexTab);
     }
-  }); 
+
+    // open hoardie
+    await openIndex();
+    // close all tabs
+    chrome.tabs.remove(ids);
+
 }
 
-function openIndex(indexTab) {
-  if (indexTab === undefined) {
-    // open homepage
-    chrome.tabs.create({
-      url: 'index.html',
-      pinned: true,
+function openIndex(active = false) {
+  return new Promise((resolve, reject) =>{
+    chrome.storage.local.get(['indexURL'], async props => {
+      const indexURL = props.indexURL;
+      const [indexTab] = await chrome.tabs.query({ url: indexURL });
+  
+      if (indexTab === undefined) {
+        // open homepage
+        chrome.tabs.create({
+          url: 'index.html',
+          pinned: true,
+          active: active,
+        }, () => {
+          resolve();
+        });
+      } else {
+        if (active) {
+          chrome.tabs.update(indexTab.id, {
+            active: active,
+          }, () => { resolve(); });
+        } else { resolve(); }
+      }
     });
-  }
+  });
 }
 
 function setTabsData(newTabInfo) {
@@ -86,21 +96,11 @@ function setTabsData(newTabInfo) {
 
       // add uuid to all tabs
       newTabInfo.forEach((tabInfo, i) => {
-          const tab = {
-            id: uuid(),
-            pinned: false,
-            tabInfo: tabInfo
-          };
+          const tab = createTab(tabInfo);
           newTabs.push(tab);
       });
 
-      const newTabGroup = {
-        id: uuid(),
-        tabs: newTabs,
-        pinned: false,
-        createdTime: Date.now(),
-      };
-
+      const newTabGroup = createTabGroup(newTabs);
       const allTabGroups = [newTabGroup].concat(formerTabGroups);
 
       chrome.storage.local.set({ tabGroups: allTabGroups }, () => {

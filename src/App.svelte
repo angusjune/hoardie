@@ -3,6 +3,7 @@
     import { zhCN } from 'date-fns/locale';
     import TabList from './TabList.svelte';
     import IconButton from './IconButton.svelte';
+    import { createTabGroup } from './data.js';
 
     const url = chrome.runtime.getURL('index.html');
     chrome.storage.local.set({ indexURL: url });
@@ -29,7 +30,7 @@
         removeGroup(groupId);
     }
 
-    function removeList(tabId) {
+    function removeTab(tabId) {
         tabGroups.forEach((group, i) => {
             const matchedTab = group.tabs.find(el => el.id === tabId);
 
@@ -82,6 +83,61 @@
         chrome.storage.local.set({ tabGroups: tabGroups });
     }
 
+    function mergeAll() {
+        let newTabs = [];
+        tabGroups.forEach(group => {
+            group.tabs.forEach(tab => {
+                newTabs.push(tab);
+            });
+        });
+        if (newTabs.length > 0) {
+            const newTabGroup = createTabGroup(newTabs);
+            chrome.storage.local.set({ tabGroups: [newTabGroup] });
+        }
+    }
+
+    function removeIdentical() {
+        const allTabs = []
+        // get every tab onboard
+        tabGroups.forEach(group => {
+            group.tabs.forEach(tab => {
+                tab.groupId = group.id;
+                allTabs.push(tab);
+            })
+        });
+        allTabs.sort((a, b) => {
+            if (a.pinned && !b.pinned) {
+                return -1;
+            } else if (!a.pinned && b.pinned) {
+                return 1;
+            } else {
+                return b.createdTime - a.createdTime
+            }
+        });
+
+        const uniqueUrlList = allTabs.filter((el, index, self) => 
+            index === self.findIndex(t => (
+                t.tabInfo.url === el.tabInfo.url
+            )) || el.pinned
+        );
+
+        const newTabGroups = [];
+        tabGroups.forEach(group => {
+            group.tabs = [];
+            uniqueUrlList.forEach(tab => {
+                if (group.id === tab.groupId) {
+                    delete tab.groupId;
+                    group.tabs.push(tab);
+                }
+            });
+            if (group.tabs.length > 0) {
+                newTabGroups.push(group)
+            }
+        });
+
+        chrome.storage.local.set({ tabGroups: newTabGroups });
+    }
+
     function removeAll() {
         chrome.storage.local.set({ tabGroups: [] });
     }
@@ -96,23 +152,23 @@
         removeGroup(groupId);
     }
 
-    function onClickList(e) {
+    function onClickTab(e) {
         const tabId = e.detail.id;
         const url   = e.detail.url;
         const pinned = e.detail.pinned;
 
         openTab(url);
         if (!pinned) {
-            removeList(tabId);
+            removeTab(tabId);
         }
     }
 
-    function onRemoveList(e) {
+    function onRemoveTab(e) {
         const tabId = e.detail.id;
-        removeList(tabId);
+        removeTab(tabId);
     }
 
-    function onPinChangeList(e) {
+    function onPinChangeTab(e) {
         const tabId = e.detail.id;
         const pinned = e.detail.pinned;
 
@@ -147,15 +203,11 @@
 
 <style lang="scss">
     @use 'base';
-    @include base.themed();
+    @include base.core-styles();
 
     :global(body) {
-        /* background: base.$background; */
-        /* color: base.$primary; */
-        @include themed() {
-            color: t($primary);
-            background: t($background);
-        }
+        color: var(--primary);
+        background: var(--background);
     }
 
     .container {
@@ -165,7 +217,7 @@
         padding: 64px 0;
     }
     .card {
-        background: base.$surface;
+        background: var(--surface);
         border-radius: 8px;
         margin-bottom: 16px;
 
@@ -190,8 +242,8 @@
         }
 
         &__subtitle {
+            color: var(--secondary);
             font-size: 14px;
-            color: base.$secondary;
             font-weight: normal;
             margin: 4px 0 0 0;
             display: inline-block;
@@ -225,6 +277,9 @@
     }
 </style>
 
+<button on:click={mergeAll}>Merge All</button>
+<button on:click={removeIdentical}>Remove Identical</button>
+
 <div class="container">
     <main class="main">
         {#each tabGroups as group (group.id)}
@@ -236,12 +291,12 @@
                     <ul class="header__menu">
                         <li class="header__menu-item">
                             <IconButton ariaLabel="clear all" on:click={onClickRemoveGroup} dataId={group.id}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 16H19V18H15V16ZM15 8H22V10H15V8ZM15 12H21V14H15V12ZM3 18C3 19.1 3.9 20 5 20H11C12.1 20 13 19.1 13 18V8H3V18ZM5 10H11V18H5V10ZM10 4H6L5 5H2V7H14V5H11L10 4Z" fill="#444444"/></svg>                                    
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 16H19V18H15V16ZM15 8H22V10H15V8ZM15 12H21V14H15V12ZM3 18C3 19.1 3.9 20 5 20H11C12.1 20 13 19.1 13 18V8H3V18ZM5 10H11V18H5V10ZM10 4H6L5 5H2V7H14V5H11L10 4Z" fill="var(--icon-ink)"/></svg>                                    
                             </IconButton>
                         </li>
                         <li class="header__menu-item">
                             <IconButton ariaLabel="open all tabs" on:click={onClickOpenTabsInGroup} dataId={group.id}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 4H5C3.89 4 3 4.9 3 6V18C3 19.1 3.89 20 5 20H9V18H5V8H19V18H15V20H19C20.1 20 21 19.1 21 18V6C21 4.9 20.11 4 19 4ZM12 10L8 14H11V20H13V14H16L12 10Z" fill="#444444"/></svg>                                    
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 4H5C3.89 4 3 4.9 3 6V18C3 19.1 3.89 20 5 20H9V18H5V8H19V18H15V20H19C20.1 20 21 19.1 21 18V6C21 4.9 20.11 4 19 4ZM12 10L8 14H11V20H13V14H16L12 10Z" fill="var(--icon-ink)"/></svg>                                    
                             </IconButton>
                         </li>
                     </ul>
@@ -251,7 +306,7 @@
             
             <div class="tab-lists">
                 {#each group.tabs as tab (tab.id)}
-                    <TabList {...tab} on:click={onClickList} on:remove={onRemoveList} on:pinChange={onPinChangeList}>{tab.tabInfo.title}</TabList>
+                    <TabList {...tab} on:click={onClickTab} on:remove={onRemoveTab} on:pinChange={onPinChangeTab}>{tab.tabInfo.title}</TabList>
                 {/each}
             </div>
 

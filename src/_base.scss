@@ -1,44 +1,40 @@
-$dark-theme: false !default;
-$background: #F2F4F5 !default;
-$surface: #fff !default;
-$primary: #333 !default;
-$secondary: #666 !default;
-$theme: #5285EC !default;
-$theme-secondary: #E9F0FD !default;
+@use "sass:map";
+@use "sass:color";
 
 $themes: (
     default: (
-        $background: #F2F4F5,
-        $surface: #fff,
-        $primary: #333,
-        $secondary: #666,
-        $theme: #5285EC,
-        $theme-secondary: #E9F0FD
+        'background': #F2F4F5,
+        'surface': #fff,
+        'primary': #333,
+        'secondary': #666,
+        'theme': #5285EC,
+        'theme-secondary': color.change(#5285EC, $alpha: 0.2),
+        'icon-ink': #444,
+        'ripple': rgba(0, 0, 0, 0.035)
     ),
     dark: (
-        $background: #111,
-        $surface: #333,
-        $primary: #fff,
-        $secondary: #ddd,
-        $theme: #8cb6f6,
-        $theme-secondary: #E9F0FD
+        'background': #202124,
+        'surface': #35363A,
+        'primary': #fff,
+        'secondary': #bbb,
+        'theme': #8cb6f6,
+        'theme-secondary': color.change(#8cb6f6, $alpha: 0.2),
+        'icon-ink': #ccc,
+        'ripple': rgba(255, 255, 255, 0.15)
     )
 );
 
-@mixin themed() {
-    @each $theme, $map in $themes {
-        .theme--#{$theme} & {
-        $theme-map: () !global;
-        @each $key, $submap in $map {
-            $value: map-get(map-get($themes, $theme), '#{$key}');
-            $theme-map: map-merge($theme-map, ($key: $value)) !global;
-        }
-        @content;
-            $theme-map: null !global;
-        }
-    }
+@function color($key, $theme: 'default') {
+    @return map-get(map-get($themes, $theme), $key);
 }
 
-@function t($key) {
-    @return map-get($theme-map, $key);
+@mixin core-styles() {
+    @each $theme, $map in $themes {
+        :global(body.theme--#{$theme}) {
+            $theme-map: () !global;
+            @each $key, $submap in $map {
+                --#{$key}: #{color(#{$key}, #{$theme})};
+            }
+        }
+    }
 }
