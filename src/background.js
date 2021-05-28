@@ -60,8 +60,7 @@ function openIndex(active = false) {
     chrome.storage.local.get(['indexURL'], async props => {
       const indexURL = props.indexURL;
       const [indexTab] = await chrome.tabs.query({ url: indexURL });
-  
-      if (indexTab === undefined) {
+      if (indexTab === undefined || indexURL === undefined) {
         // open homepage
         chrome.tabs.create({
           url: 'index.html',
@@ -71,7 +70,7 @@ function openIndex(active = false) {
           resolve();
         });
       } else {
-        if (active) {
+        if (indexTab.active) {
           chrome.tabs.update(indexTab.id, {
             active: active,
           }, () => { resolve(); });

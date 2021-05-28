@@ -15,10 +15,28 @@
         dispatch('click', {...e, id: id, url: url, pinned: pinned});
     }
 
+    // Keyboard shortcuts
+    function onKeyDown(e) {
+        if (e.code === 'Enter') {
+            onClickList(e);
+        } else if (e.code === 'KeyP') {
+            pinned = !pinned;
+            onChangePin(e);
+        } else if (e.code === 'Backspace') {
+            onClickRemove();
+        }
+    }
+
     function onClickRemove() {
       dispatch('remove', {
         id: id
       });
+    }
+
+    function onKeyDownRemove(e) {
+        if (e.code === 'Enter') {
+            onClickRemove();
+        }
     }
 
     function onChangePin(e) {
@@ -27,6 +45,13 @@
             id: id,
             pinned: pinned
         });
+    }
+
+    function onKeyDownPin(e) {
+        if (e.code === 'Enter') {
+            pinned = !pinned;
+            onChangePin(e);
+        }
     }
 
     function onClickPin() {}
@@ -48,8 +73,9 @@
         line-height: 24px;
         cursor: pointer;
 
-        &:hover {
+        &:hover, &:focus {
             background: var(--theme-secondary);
+            outline: 0;
         }
     }
 
@@ -74,22 +100,20 @@
 
     .tab-list__menu {
         height: 24px;
-        opacity: 0;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-
-        .tab-list:hover &, .tab-list.pinned & {
-            opacity: 1;
-        }
+        display: flex;
+        gap: 16px;
     }
 
-    .tab-list__menu-item {
-        display: inline-block;
-        margin-left: 16px;
+    :global(.tab-list__menu-item) {
+        opacity: 0;
+    }
+
+    :global(.tab-list__menu-item:focus), .tab-list:hover :global(.tab-list__menu-item), .tab-list:focus :global(.tab-list__menu-item), .tab-list.pinned .toggle-pin {
+        opacity: 1;
     }
 
     .toggle-pin {
+        display: block;
         position: relative;
         width: 24px;
         height: 24px;
@@ -98,7 +122,11 @@
         background: none;
         padding: 0;
 
-        &:before, &:after  {
+        &:focus {
+            outline: 0;
+        }
+
+        &:before, &:after {
             position: absolute;
             top: -6px;
             left: -6px;
@@ -119,14 +147,18 @@
             opacity: 1;
         }
 
-        &:after  {
+        &:after {
             transform: scale(0);
             transition: transform 0.12s;
             will-change: opacity, transform;
         }
 
-        &:active:after  {
+        &:active:after, &:focus:after {
             transform: scale(1);
+        }
+
+        &:focus:after {
+            background-color: var(--theme-secondary);
         }
 
         &__content {
@@ -157,22 +189,19 @@
     }
 </style>
 
-<div class="tab-list" class:pinned={pinned} on:click={onClickList} data-pinned={pinned} tabindex="0">
-    <span class="tab-list__icon"><img src={favIconUrl} alt={iconalt} loading="lazy"/></span>
+<div class="tab-list" class:pinned={pinned} on:click={onClickList} on:keydown={onKeyDown} data-pinned={pinned} tabindex="0" role="listitem">
+    <span class="tab-list__icon"><img src={favIconUrl} alt={iconalt} loading="lazy" role="presentation"/></span>
     <span class="tab-list__title"><slot></slot></span>
-    <ul class="tab-list__menu">
-      <li class="tab-list__menu-item">
-        <IconButton ariaLabel="clear" on:click={onClickRemove} hidden={pinned} stopPropagation={true}>
+    <div class="tab-list__menu" role="menu">
+        <IconButton class="tab-list__menu-item" ariaLabel="Remove" on:click={onClickRemove} on:keydown={onKeyDownRemove} hidden={pinned} stopPropagation={true}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" fill="var(--icon-ink)"/></svg>
-        </IconButton></li>
-        <li class="tab-list__menu-item">
-            <label class="toggle-pin" for={"pin-" + id} on:click|stopPropagation={onClickPin}>
-                <input bind:checked={pinned} type="checkbox" id={"pin-" + id} on:change={onChangePin}>
-                <i class="toggle-pin__content">
-                    <span class="icon-unpinned"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 4V9C14 10.12 14.37 11.16 15 12H9C9.65 11.14 10 10.1 10 9V4H14ZM17 2H7C6.45 2 6 2.45 6 3C6 3.55 6.45 4 7 4H8V9C8 10.66 6.66 12 5 12V14H10.97V21L11.97 22L12.97 21V14H19V12C17.34 12 16 10.66 16 9V4H17C17.55 4 18 3.55 18 3C18 2.45 17.55 2 17 2Z" fill="var(--icon-ink)"/></svg></span>
-                    <span class="icon-pinned"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M16 9V4H17C17.55 4 18 3.55 18 3C18 2.45 17.55 2 17 2H7C6.45 2 6 2.45 6 3C6 3.55 6.45 4 7 4H8V9C8 10.66 6.66 12 5 12V14H10.97V21L11.97 22L12.97 21V14H19V12C17.34 12 16 10.66 16 9Z" fill="var(--theme)"/></svg></span>
-                </i>
-            </label>
-        </li>
-    </ul>
+        </IconButton>
+        <label class="tab-list__menu-item toggle-pin" for={"pin-" + id} on:click|stopPropagation={onClickPin} on:keydown|stopPropagation={onKeyDownPin} tabindex="0" role="switch" aria-checked={pinned} aria-label="Pin">
+            <input bind:checked={pinned} type="checkbox" id={"pin-" + id} on:change={onChangePin}>
+            <i class="toggle-pin__content">
+                <span class="icon-unpinned"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 4V9C14 10.12 14.37 11.16 15 12H9C9.65 11.14 10 10.1 10 9V4H14ZM17 2H7C6.45 2 6 2.45 6 3C6 3.55 6.45 4 7 4H8V9C8 10.66 6.66 12 5 12V14H10.97V21L11.97 22L12.97 21V14H19V12C17.34 12 16 10.66 16 9V4H17C17.55 4 18 3.55 18 3C18 2.45 17.55 2 17 2Z" fill="var(--icon-ink)"/></svg></span>
+                <span class="icon-pinned"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M16 9V4H17C17.55 4 18 3.55 18 3C18 2.45 17.55 2 17 2H7C6.45 2 6 2.45 6 3C6 3.55 6.45 4 7 4H8V9C8 10.66 6.66 12 5 12V14H10.97V21L11.97 22L12.97 21V14H19V12C17.34 12 16 10.66 16 9Z" fill="var(--theme)"/></svg></span>
+            </i>
+        </label>
+    </div>
 </div>

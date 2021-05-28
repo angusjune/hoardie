@@ -12,18 +12,22 @@
         "message": "Display Hoardie"
     },
     "remove_all": {
-        "message": "remove all tabs"
+        "message": "Remove All"
     },
     "open_all": {
-        "message": "open all tabs"
+        "message": "Open All"
     },
     "pin": {
-        "message": "pin"
+        "message": "Pin"
     },
     "remove": {
-        "message": "remove"
+        "message": "Remove"
     },
     "tab": {
         "message": "tab"
+    },
+    "empty_title": {
+        "description": "message to display if there's no tab groups.",
+        "message": "It's quiet here."
     }
 }

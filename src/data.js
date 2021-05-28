@@ -13,7 +13,7 @@ function createTabGroup(tabs, pinned = false) {
         tabs: tabs,
         pinned: pinned,
         createdTime: Date.now(),
-    }
+    };
 }
 
 /**
@@ -27,7 +27,7 @@ function createTab(tabInfo, pinned = false) {
         id: uuid(),
         pinned: pinned,
         tabInfo: tabInfo
-    }
+    };
 }
 
-export { createTabGroup, createTab }
+export { createTabGroup, createTab };

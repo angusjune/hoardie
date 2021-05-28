@@ -10,31 +10,48 @@
     export let hidden = false;
     export let stopPropagation = false;
 
+    document.documentElement.style.setProperty('--size', size);
+
     function onClick(e) {
         if (stopPropagation) {
             e.stopPropagation();
         }
         dispatch('click', e);
     }
+
+    function onKeyDown(e) {
+        if (stopPropagation) {
+            e.stopPropagation();
+        }
+        dispatch('keydown', e);
+    }
 </script>
 
 <style lang="scss">
     .icon-btn {
+        --size: 24px;
+
         position: relative;
-        width: 24px;
-        height: 24px;
+        width: var(--size);
+        height: var(--size);
         border-radius: 50%;
         border: none;
         background: none;
         padding: 0;
 
+        &:focus {
+            outline: 0;
+        }
+
         &:before, &:after  {
+            --ripple-size: calc(var(--size) * 1.5);
+
             position: absolute;
-            top: -6px;
-            left: -6px;
+            top: calc(var(--size) / -4);
+            left: calc(var(--size) / -4);
             content: '';
-            width: 36px;
-            height: 36px;
+            width: var(--ripple-size);
+            height: var(--ripple-size);
             border-radius: 50%;
             background-color: var(--ripple);
         }
@@ -55,18 +72,22 @@
             will-change: opacity, transform;
         }
 
-        &:active:after  {
+        &:active:after, &:focus:after {
             transform: scale(1);
         }
 
+        &:focus:after {
+            background-color: var(--theme-secondary);
+        }
+
         &__content {
-            display: block;
-            width: 100%;
-            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     }
 </style>
 
-<button on:click={onClick} class="icon-btn" aria-label={ariaLabel} data-msg={dataMsg} hidden={hidden} data-id={dataId}>
+<button on:click={onClick} on:keydown={onKeyDown} class="icon-btn {$$props.class}" title={ariaLabel} aria-label={ariaLabel} data-msg={dataMsg} hidden={hidden} data-id={dataId} style="--size:{size};">
     <i class="icon-btn__content"><slot></slot></i>
 </button>
