@@ -13,6 +13,11 @@ chrome.runtime.onInstalled.addListener(() => {
     title: 'Hoard all Tabs',
     id: 'saveTabs'
   });
+  chrome.contextMenus.create({
+    contexts: ['action'],
+    title: 'Hoard This Tab',
+    id: 'saveThisTab'
+  });
 });
 
 chrome.contextMenus.onClicked.addListener(info => {
@@ -21,6 +26,8 @@ chrome.contextMenus.onClicked.addListener(info => {
     openIndex(true);
   } else if (menuId === 'saveTabs') {
     hoard();
+  } else if (menuId === 'saveThisTab') {
+    chrome.tabs.query({ currentWindow: true, active: true }, hoard);
   }
 });
 
@@ -28,31 +35,30 @@ chrome.action.onClicked.addListener(async tab => {
   await hoard();
 });
 
-async function hoard() {
+async function hoard(tabs) {
   // get all unpinned tabs in current window
-  const tabs = await chrome.tabs.query({ currentWindow: true, pinned: false });
+  tabs = tabs || await chrome.tabs.query({ currentWindow: true, pinned: false });
     
-    // get ids of all tabs
-    let ids = [];
-    let usefulTabs = [];
-    tabs.forEach((el, i) => {
-        ids.push(el.id);
-        // exclude empty tabs;
-        if (el.url !== 'chrome://newtab/') {
-          usefulTabs.push(el);
-        }
-    });
+  // get ids of all tabs
+  let ids = [];
+  let usefulTabs = [];
+  tabs.forEach((el, i) => {
+      ids.push(el.id);
+      // exclude empty tabs;
+      if (el.url !== 'chrome://newtab/') {
+        usefulTabs.push(el);
+      }
+  });
 
-    if(usefulTabs.length > 0) {
-      // save opened tabs in storage
-      await setTabsData(usefulTabs);
-    }
+  if(usefulTabs.length > 0) {
+    // save opened tabs in storage
+    await setTabsData(usefulTabs);
+  }
 
-    // open hoardie
-    await openIndex();
-    // close all tabs
-    chrome.tabs.remove(ids);
-
+  // open hoardie
+  await openIndex();
+  // close all tabs
+  chrome.tabs.remove(ids);
 }
 
 function openIndex(active = false) {
