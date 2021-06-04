@@ -20,6 +20,9 @@
     "pin": {
         "message": "Pin"
     },
+    "unpin": {
+        "message": "Unpin"
+    },
     "remove": {
         "message": "Remove"
     },

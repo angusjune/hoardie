@@ -1,0 +1,33 @@
+{
+    "ext_name": {
+        "message": "Hoardie - 让你的标签页不再凌乱"
+    },
+    "ext_desc": {
+        "message": "一键将所有标签页收在一个页面里"
+    },
+    "ext_action_title": {
+        "message": "收起所有Tab"
+    },
+    "ext_menu_display": {
+        "message": "显示Hoardie"
+    },
+    "remove_all": {
+        "message": "删除全部"
+    },
+    "open_all": {
+        "message": "打开全部"
+    },
+    "pin": {
+        "message": "固定"
+    },
+    "remove": {
+        "message": "删除"
+    },
+    "tab": {
+        "message": "tab"
+    },
+    "empty_title": {
+        "description": "message to display if there's no tab groups.",
+        "message": "无事发生"
+    }
+}
