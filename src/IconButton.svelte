@@ -6,7 +6,6 @@
     export let ariaLabel;
     export let dataMsg;
     export let size = '24px';
-    export let message = {};
     export let hidden = false;
     export let stopPropagation = false;
 

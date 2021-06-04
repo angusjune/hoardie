@@ -22,7 +22,6 @@
   "permissions": [
     "storage",
     "tabs",
-    "tabGroups",
     "contextMenus"
   ],
   "minimum_chrome_version": "88"
