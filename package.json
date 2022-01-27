@@ -1,7 +1,7 @@
 {
-  "name": "Hordie",
+  "name": "Hoardie",
   "version": "0.1.0",
-  "description": "Horde your tabs for later",
+  "description": "Hoarde your tabs for later",
   "private": true,
   "scripts": {
     "watch": "webpack --mode=development --watch --config config/webpack.config.js",
