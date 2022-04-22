@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_ext_name__",
   "short_name": "Hoardie",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "description": "__MSG_ext_desc__",
   "icons": {
     "128": "icons/icon-128.png"
@@ -17,6 +17,25 @@
       "24": "icons/box-24.png",
       "32": "icons/box-32.png"
     }
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+H",
+        "mac": "Alt+H"
+      },
+      "description": "__MSG_command_desc_hoard_all__"
+    },
+    "hoard-this": {
+      "suggested_key": {
+        "default": "Alt+Shift+H",
+        "mac": "Alt+Shift+H"
+      },
+      "description": "__MSG_command_desc_hoard_this__"
+    }
+  },
+  "options_ui": {
+    "page": "options.html"
   },
   "default_locale": "en",
   "permissions": [

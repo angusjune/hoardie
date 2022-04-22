@@ -5,18 +5,18 @@ import { createTabGroup, createTab } from './data.js';
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     contexts: ['action'],
-    title: 'Display Hoardie',
+    title: chrome.i18n.getMessage('ext_menu_display'),
     id: 'openIndex'
   });
   chrome.contextMenus.create({
     contexts: ['action'],
-    title: 'Hoard all Tabs',
-    id: 'saveTabs'
+    title: chrome.i18n.getMessage('command_desc_hoard_all'),
+    id: 'hoardAllTabs'
   });
   chrome.contextMenus.create({
     contexts: ['action'],
-    title: 'Hoard This Tab',
-    id: 'saveThisTab'
+    title: chrome.i18n.getMessage('command_desc_hoard_this'),
+    id: 'hoardThisTab'
   });
 });
 
@@ -24,15 +24,21 @@ chrome.contextMenus.onClicked.addListener(info => {
   const menuId = info.menuItemId;
   if (menuId === 'openIndex') {
     openIndex(true);
-  } else if (menuId === 'saveTabs') {
+  } else if (menuId === 'hoardAllTabs') {
     hoard();
-  } else if (menuId === 'saveThisTab') {
+  } else if (menuId === 'hoardThisTab') {
     chrome.tabs.query({ currentWindow: true, active: true }, hoard);
   }
 });
 
 chrome.action.onClicked.addListener(async tab => {
   await hoard();
+});
+
+chrome.commands.onCommand.addListener(command => {
+  if (command === 'hoard-this') {
+    chrome.tabs.query({ currentWindow: true, active: true }, hoard);
+  }
 });
 
 async function hoard(tabs) {

@@ -5,14 +5,40 @@
     import IconButton from './IconButton.svelte';
     import { createTabGroup } from './data.js';
 
-    const url = chrome.runtime.getURL('index.html');
-    chrome.storage.local.set({ indexURL: url });
+    const indexURL = chrome.runtime.getURL('index.html');
+    chrome.storage.local.set({ indexURL });
 
     let tabGroups = [];
+    let closeIfNoTabsLeft = false;
+    
     chrome.storage.local.get({tabGroups: []}, props => {
         console.log(props);
         tabGroups = props.tabGroups;
     });
+
+    chrome.storage.sync.get({ closeIfNoTabsLeft: true }, props => {
+        closeIfNoTabsLeft = props.closeIfNoTabsLeft;
+    });
+
+    // close app if there's no tabs left
+    function checkCloseApp(shouldClose) {
+        if (tabGroups.length <= 0 && shouldClose) {            
+            chrome.tabs.query({ url: indexURL }, info => {
+
+                // create a new tab if the app is the last tab
+                chrome.tabs.query({}, tabs => {
+                    if (tabs.length <= 1) {
+                        console.log('no tabs left');
+                        chrome.tabs.create({ url: 'chrome://newtab/' });
+                    }
+
+                    // remove the app tab
+                    chrome.tabs.remove(info[0].id);
+                });
+
+            });
+        }
+    }
 
     function openTab(url) {
         chrome.tabs.create({
@@ -48,15 +74,18 @@
                     tabGroups.splice(i, 1, group);
                 }
 
-                chrome.storage.local.set({ tabGroups: tabGroups });
+                chrome.storage.local.set({ tabGroups });
+
+                checkCloseApp(closeIfNoTabsLeft);
+
                 return;
             }
         });
     }
 
     /**
-     * 
-     * @param {string} groupId
+     * Remove a group of tabs
+     * @param {string} groupId id of the group to be removed
      * @param {boolean} force if force is true, pinned tabs in the group will also be removed
      */
     function removeGroup(groupId, force = false) {
@@ -80,7 +109,9 @@
             }
         }
 
-        chrome.storage.local.set({ tabGroups: tabGroups });
+        chrome.storage.local.set({ tabGroups });
+
+        checkCloseApp(closeIfNoTabsLeft);
     }
 
     function mergeAll() {

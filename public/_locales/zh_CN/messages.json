@@ -6,10 +6,16 @@
         "message": "一键将所有标签页收在一个页面里"
     },
     "ext_action_title": {
-        "message": "收起所有Tab"
+        "message": "收起所有标签页"
     },
     "ext_menu_display": {
         "message": "显示Hoardie"
+    },
+    "command_desc_hoard_all": {
+        "message": "收起所有标签页"
+    },
+    "command_desc_hoard_this": {
+        "message": "收起当前标签页"
     },
     "remove_all": {
         "message": "删除全部"

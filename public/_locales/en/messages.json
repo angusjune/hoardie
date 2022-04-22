@@ -11,6 +11,12 @@
     "ext_menu_display": {
         "message": "Display Hoardie"
     },
+    "command_desc_hoard_all": {
+        "message": "Hoard all tabs"
+    },
+    "command_desc_hoard_this": {
+        "message": "Hoard current tab"
+    },
     "remove_all": {
         "message": "Remove All"
     },
