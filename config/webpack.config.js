@@ -12,6 +12,7 @@ const config = merge(common, {
     background: PATHS.src + '/background.js',
     app: PATHS.src + '/App.svelte',
     utils: PATHS.src + '/utils.js',
+    options: PATHS.src + '/options.js',
   },
 });
 

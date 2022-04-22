@@ -10,7 +10,9 @@ $themes: (
         'theme': #5285EC,
         'theme-secondary': color.change(#5285EC, $alpha: 0.2),
         'icon-ink': #444,
-        'ripple': rgba(0, 0, 0, 0.035)
+        'ripple': rgba(0, 0, 0, 0.035),
+        'switch-checked-bar-color': color.adjust(#5285EC, $lightness: +20%),
+        'switch-unchecked-bar-color': #bdc1c6,
     ),
     dark: (
         'background': #202124,
@@ -20,7 +22,9 @@ $themes: (
         'theme': #8cb6f6,
         'theme-secondary': color.change(#8cb6f6, $alpha: 0.2),
         'icon-ink': #ccc,
-        'ripple': rgba(255, 255, 255, 0.15)
+        'ripple': rgba(255, 255, 255, 0.15),
+        'switch-checked-bar-color': color.adjust(#8cb6f6, $lightness: +20%),
+        'switch-unchecked-bar-color': #9AA0A6,
     )
 );
 
