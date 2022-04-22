@@ -2,7 +2,4 @@
 
 One click to hoard your tabs in a single page.
 
-## Install
-
-[**Chrome** extension]() <!-- TODO: Add chrome extension link inside parenthesis -->
-
+[Get it from Chrome Store](https://chrome.google.com/webstore/detail/hoardie-reduce-tab-clutte/mkhgkpkfkjckbemagpldhegilagacdcn)

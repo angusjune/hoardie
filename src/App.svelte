@@ -16,7 +16,7 @@
         tabGroups = props.tabGroups;
     });
 
-    chrome.storage.sync.get({ closeIfNoTabsLeft: true }, props => {
+    chrome.storage.sync.get({ closeIfNoTabsLeft: false }, props => {
         closeIfNoTabsLeft = props.closeIfNoTabsLeft;
     });
 
@@ -24,18 +24,15 @@
     function checkCloseApp(shouldClose) {
         if (tabGroups.length <= 0 && shouldClose) {            
             chrome.tabs.query({ url: indexURL }, info => {
-
                 // create a new tab if the app is the last tab
                 chrome.tabs.query({}, tabs => {
                     if (tabs.length <= 1) {
                         console.log('no tabs left');
                         chrome.tabs.create({ url: 'chrome://newtab/' });
                     }
-
                     // remove the app tab
                     chrome.tabs.remove(info[0].id);
                 });
-
             });
         }
     }
