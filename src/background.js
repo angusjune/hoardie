@@ -58,7 +58,7 @@ async function hoard(tabs) {
 
   if(usefulTabs.length > 0) {
     // save opened tabs in storage
-    await setTabsData(usefulTabs);
+    await addToTabGroups(usefulTabs);
   }
 
   // open hoardie
@@ -92,7 +92,9 @@ function openIndex(active = false) {
   });
 }
 
-function setTabsData(newTabInfo) {
+// create a new tab group from new tabs
+// and add to tab groups
+function addToTabGroups(newTabInfo) {
   return new Promise((resolve, reject) => {
     chrome.storage.local.get({
       tabGroups: []

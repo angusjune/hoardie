@@ -2,10 +2,18 @@
 import { uuid } from './utils.js';
 
 /**
- * 
+ * @typedef TabGroup
+ * @property {string} id
+ * @property {Array} tabs
+ * @property {number} createdTime
+ * @property {boolean} pinned
+ */
+
+/**
+ * Creates a Tab Group
  * @param {Array} tabs
  * @param {boolean} pinned
- * @returns {Object}
+ * @returns {TabGroup}
  */
 function createTabGroup(tabs, pinned = false) {
     return {

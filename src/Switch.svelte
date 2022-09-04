@@ -2,7 +2,7 @@
     <label class="switch">
         <span class="switch__label"><slot></slot></span>
         <input type="checkbox" class="switch__input" bind:checked={on} on:change={onChange}>
-        <div class="switch__bar" role="switch">
+        <div class="switch__bar" role="switch" aria-checked={on}>
             <div class="switch__knob"></div>
         </div>
     </label>    

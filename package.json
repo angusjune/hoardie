@@ -1,14 +1,14 @@
 {
   "name": "Hoardie",
   "version": "0.1.0",
-  "description": "Hoarde your tabs for later",
+  "description": "Hoard your tabs for later",
   "private": true,
   "scripts": {
     "watch": "webpack --mode=development --watch --config config/webpack.config.js",
     "build": "webpack --mode=production --config config/webpack.config.js"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.138",
+    "@types/chrome": "^0.0.196",
     "copy-webpack-plugin": "^6.4.1",
     "css-loader": "^4.3.0",
     "file-loader": "^6.2.0",
@@ -16,14 +16,15 @@
     "sass": "^1.32.12",
     "sass-loader": "^11.1.0",
     "size-plugin": "^2.0.2",
-    "svelte": "^3.38.2",
+    "svelte": "^3.50.0",
     "svelte-loader": "^3.1.1",
-    "svelte-preprocess": "^4.7.3",
+    "svelte-preprocess": "^4.10.7",
     "webpack": "^5.69.1",
     "webpack-cli": "^4.7.0",
     "webpack-merge": "^5.7.3"
   },
   "dependencies": {
-    "date-fns": "^2.21.3"
+    "date-fns": "^2.21.3",
+    "svelte-dnd-action": "^0.9.19"
   }
 }
