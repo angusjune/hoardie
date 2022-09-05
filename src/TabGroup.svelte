@@ -6,6 +6,7 @@
     import { createEventDispatcher } from 'svelte';
     import IconButton from './IconButton.svelte';
     import TabList from './TabList.svelte';
+    import EditableTitle from './EditableTitle.svelte';
     import { format, formatDistanceToNow } from 'date-fns';
     import { zhCN } from 'date-fns/locale';
 
@@ -50,7 +51,8 @@
 
     <header class="tg-header">
         <div class="tg-header__titles">
-            <h1 class="tg-header__title" id={'title-' + group.id}>{group.tabs?.length} <span data-msg="tabs">{group.tabs?.length <= 1 ? "Tab" : "Tabs"}</span></h1>
+            <!-- <h1 class="tg-header__title" id={'title-' + group.id}>{group.tabs?.length} <span data-msg="tabs">{group.tabs?.length <= 1 ? "Tab" : "Tabs"}</span></h1> -->
+            <EditableTitle id={'title-' + group.id} :value={group.title} defaultValue={group.tabs?.length + (group.tabs?.length <= 1 ? " Tab" : " Tabs")} />
             <h2 class="tg-header__subtitle">
                 {humanReadableDate(new Date(group.createdTime))} 
                 <time class="tg-header__subtitle-desc" datetime={new Date(group.createdTime)}> - {format(new Date(group.createdTime), 'yyyy/MM/dd HH:mm:ss')}</time>
