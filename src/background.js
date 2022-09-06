@@ -178,11 +178,8 @@ function openApp(active = true) {
 // and add to tab groups
 function addToTabGroups(newTabInfo) {
   return new Promise((resolve, reject) => {
-    if (tabGroups?.length < 1) {
-      getTabGroups().then(() => {
-        addToTabGroups(newTabInfo).then(resolve);
-      });
-    } else {
+    getTabGroups().then(() => {
+    
       let newTabs = [];
 
       for (const tabInfo of newTabInfo) {
@@ -195,7 +192,7 @@ function addToTabGroups(newTabInfo) {
       tabGroups.splice(0, tabGroups.length, ...allTabGroups);
 
       chrome.storage.local.set({ tabGroups }, () => { resolve(tabGroups); });
-    }
+    });
   });
 }
 
