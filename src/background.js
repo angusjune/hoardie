@@ -76,7 +76,7 @@ chrome.runtime.onMessage.addListener(({type, detail}, sender, sendResponse) => {
     }
 
     // if tabGroups is empty, retrieve it first
-    if (tabGroups.length < 1) {
+    if (tabGroups?.length < 1) {
       getTabGroups().then(response);
     } else {
       response();
@@ -84,6 +84,19 @@ chrome.runtime.onMessage.addListener(({type, detail}, sender, sendResponse) => {
   }
   return true;
 });
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local') {
+    if (changes.tabGroups) {
+      tabGroups.splice(0, tabGroups.length, ...changes.tabGroups.newValue);
+    }
+  } else if (areaName === 'sync') {
+    for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+      Object.assign(settings, { [key]: newValue });
+    }
+  }
+});
+
 
 function getTabGroups() {
   return new Promise((resolve, reject) => {
@@ -165,33 +178,24 @@ function openApp(active = true) {
 // and add to tab groups
 function addToTabGroups(newTabInfo) {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.get({
-      tabGroups: []
-    }, async props => {
-      if (chrome.runtime.lastError) {
-        return reject(chrome.runtime.lastError);
-      }
-
-      const formerTabGroups = props.tabGroups;
-
+    if (tabGroups?.length < 1) {
+      getTabGroups().then(() => {
+        addToTabGroups(newTabInfo).then(resolve);
+      });
+    } else {
       let newTabs = [];
 
-      // add uuid to all tabs
-      newTabInfo.forEach((tabInfo, i) => {
-          const tab = createTab(tabInfo);
-          newTabs.push(tab);
-      });
+      for (const tabInfo of newTabInfo) {
+        const tab = createTab(tabInfo);
+        newTabs.push(tab);
+      }
 
       const newTabGroup = createTabGroup(newTabs);
-      const allTabGroups = [newTabGroup].concat(formerTabGroups);
+      const allTabGroups = [newTabGroup].concat(tabGroups);
+      tabGroups.splice(0, tabGroups.length, ...allTabGroups);
 
-      chrome.storage.local.set({ tabGroups: allTabGroups }, () => {
-        if (chrome.runtime.lastError) {
-          return reject(chrome.runtime.lastError);
-        }
-        resolve();
-      });
-    });
+      chrome.storage.local.set({ tabGroups }, () => { resolve(tabGroups); });
+    }
   });
 }
 
@@ -317,20 +321,22 @@ function mergeIdenticalTabs() {
             newTabGroups.push(group)
         }
     });
-
-    chrome.storage.local.set({ tabGroups: newTabGroups }, () => { resolve(newTabGroups); });
+    
+    tabGroups.splice(0, tabGroups.length, ...newTabGroups);
+    chrome.storage.local.set({ tabGroups }, () => { resolve(tabGroups); });
   });
 }
 
 function mergeAllGroups() {
   return new Promise((resolve, reject) => {
     const newTabs = [];
+    // get all tabs in one array
     tabGroups.forEach(group => {
-        group.tabs.forEach(newTabs.push);
+        group.tabs.forEach(tab => newTabs.push(tab));
     });
-    if (newTabs.length > 0) {
-        const newTabGroup = createTabGroup(newTabs);
-        chrome.storage.local.set({ tabGroups: [newTabGroup] }, () => { resolve([newTabGroup]); });
-    }
+
+    // replace with new group
+    tabGroups.splice(0, tabGroups.length, createTabGroup(newTabs));
+    chrome.storage.local.set({ tabGroups }, () => { resolve(tabGroups); });
   });
 }

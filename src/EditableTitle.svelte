@@ -1,4 +1,7 @@
 <script>
+    import { createEventDispatcher } from 'svelte';
+    const dispatch = createEventDispatcher();
+
     export let id = '';
     export let value = '';
     export let defaultValue = '';
@@ -8,7 +11,17 @@
 </script>
 
 <div class="et" class:et--empty={!value}>
-    <h1 {id} contenteditable role="textbox" class="et__input" style:--min-width={minWidth+'ch'} data-placeholder={defaultValue} on:input={e=>value=e.target.innerText}>{value || ''}</h1>
+    <h1 {id} 
+        contenteditable="plaintext-only" 
+        role="textbox" 
+        class="et__input" 
+        style:--min-width={minWidth+'ch'} 
+        data-placeholder={defaultValue} 
+        on:input={e=>value=e.target.innerText} 
+        on:blur={()=>dispatch('changeGroupTitle')}
+    >
+        {value || ''}
+    </h1>
 </div>
 
 <style lang="scss">
@@ -46,6 +59,7 @@
             border-radius: 0;
             overflow: hidden;
             resize: none;
+            cursor: text;
 
             &:focus {
                 outline: 0;

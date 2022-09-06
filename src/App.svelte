@@ -15,6 +15,18 @@
         closeIfNoTabsLeft = result.closeIfNoTabsLeft
     });
 
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+        if (namespace === 'local') {
+            if (changes.tabGroups) {
+                tabGroups = changes.tabGroups.newValue;
+            }
+        } else if (namespace === 'sync') {
+            if (changes.closeIfNoTabsLeft) {
+                closeIfNoTabsLeft = changes.closeIfNoTabsLeft.newValue;
+            }
+        }
+    });
+
     // close app if there's no tabs left
     function checkCloseApp() {
         // get url of the app
@@ -54,35 +66,27 @@
     }
 
     function removeTab(tabId) {
-        chrome.runtime.sendMessage({ type: 'removeTab', detail: {tabId} }, result => {
-            tabGroups = result;
+        chrome.runtime.sendMessage({ type: 'removeTab', detail: {tabId} }, () => {
             checkCloseApp();
         });
     }
 
     function removeGroup(groupId) {
-        chrome.runtime.sendMessage({ type: 'removeGroup', detail: {groupId} }, result => {
-            tabGroups = result;
+        chrome.runtime.sendMessage({ type: 'removeGroup', detail: {groupId} }, () => {
             checkCloseApp();
         });
     }
 
     function updateGroup(groupId, data) {
-        chrome.runtime.sendMessage({ type: 'updateGroup', detail: {groupId, data} }, result => {
-            tabGroups = result;
-        });
+        chrome.runtime.sendMessage({ type: 'updateGroup', detail: {groupId, data} });
     }
 
     function mergeAllGroups() {
-        chrome.runtime.sendMessage({ type: 'mergeAllGroups' }, result => {
-            tabGroups = result;
-        });
+        chrome.runtime.sendMessage({ type: 'mergeAllGroups' });
     }
 
     function mergeIdenticalTabs() {
-        chrome.runtime.sendMessage({ type: 'mergeIdenticalTabs' }, result => {
-            tabGroups = result;
-        });
+        chrome.runtime.sendMessage({ type: 'mergeIdenticalTabs' });
     }
 
     function onClickTab(e) {
@@ -129,7 +133,7 @@
     </main>
 
     {#if tabGroups.length > 0}
-    <Actions on:removeIdentical={mergeIdenticalTabs} on:mergeAll={mergeAllGroups} />
+    <Actions on:removeIdentical={mergeIdenticalTabs} on:mergeAll={mergeAllGroups} --merge-display={tabGroups.length < 2 ? 'none' : 'block'} />
     {/if}
 </div>
 

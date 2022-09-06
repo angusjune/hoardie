@@ -31,19 +31,20 @@
         group.tabs = e.detail.items;
     }
 
-    /**
-     * @param groupId id of the group that changes
-     */
-    function handleDndFinalize(groupId, e) {
+    function handleDndFinalize(e) {
         // change the tabs of the group
         group.tabs = e.detail.items;
 
         // remove the group if there's no tabs left
         if (group.tabs.length < 1) {
-            dispatch('removeGroup', {id: groupId})
+            dispatch('removeGroup', {id: group.id})
         } 
 
-        dispatch('updateGroup', {id: groupId, data: group});
+        dispatch('updateGroup', {id: group.id, data: group});
+    }
+
+    function changeGroupTitle() {
+        dispatch('updateGroup', {id: group.id, data: group});
     }
 </script>
 
@@ -51,7 +52,7 @@
 
     <header class="tg-header">
         <div class="tg-header__titles">
-            <EditableTitle id={'title-' + group.id} bind:value={group.title} defaultValue={group.tabs?.length + (group.tabs?.length <= 1 ? " Tab" : " Tabs")} />
+            <EditableTitle id={'title-' + group.id} bind:value={group.title} defaultValue={group.tabs?.length + (group.tabs?.length <= 1 ? " Tab" : " Tabs")} on:changeGroupTitle={changeGroupTitle}  />
             <h2 class="tg-header__subtitle">
                 {humanReadableDate(new Date(group.createdTime))} 
                 <time class="tg-header__subtitle-desc" datetime={new Date(group.createdTime)}> - {format(new Date(group.createdTime), 'yyyy/MM/dd HH:mm:ss')}</time>
@@ -75,7 +76,7 @@
             dropTargetStyle:'',
         }}
         on:consider={handleDndConsider}
-        on:finalize={e => handleDndFinalize(group.id, e)}    
+        on:finalize={handleDndFinalize}    
     >
         {#each group.tabs as tab (tab.id)}
         <div class="tab-lists__item" animate:flip={{duration: flipDurationMs}}>
