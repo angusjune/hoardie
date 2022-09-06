@@ -7,8 +7,8 @@
     $: minWidth = defaultValue.length;
 </script>
 
-<div class="et" class:et--empty={value.length < 1}>
-    <h1 {id} contenteditable role="textbox" class="et__input" style:--min-width={minWidth+'ch'} data-placeholder={defaultValue} on:input={e=>value=e.target.innerText} />
+<div class="et" class:et--empty={!value}>
+    <h1 {id} contenteditable role="textbox" class="et__input" style:--min-width={minWidth+'ch'} data-placeholder={defaultValue} on:input={e=>value=e.target.innerText}>{value || ''}</h1>
 </div>
 
 <style lang="scss">
