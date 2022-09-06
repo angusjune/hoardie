@@ -109,6 +109,7 @@
     .tg-header {
         padding: 24px 32px 0 32px;
         display: flex;
+        gap: 32px;
 
        &__titles {
             display: flex;

@@ -3,74 +3,57 @@
     export let value = '';
     export let defaultValue = '';
 
-    let  contentWidth = 0;
-
-    $: if (value) {
-        contentWidth = Math.max(value.length, defaultValue.length, 2);
-    } else {
-        contentWidth = defaultValue.length;
-    }
+    let minWidth = 0;
+    $: minWidth = defaultValue.length;
 </script>
 
-<label class="et" class:et--empty={value.length < 1}>
-    <h1 {id} class="et__title">{value || defaultValue}</h1>
-    <input class="et__input" bind:value />
-</label>
+<div class="et" class:et--empty={value.length < 1}>
+    <h1 {id} contenteditable role="textbox" class="et__input" style:--min-width={minWidth+'ch'} data-placeholder={defaultValue} on:input={e=>value=e.target.innerText} />
+</div>
 
 <style lang="scss">
 
     .et {
+        --font-size: 24px;
+        --line-height: 28px;
+
         position: relative;
-        font-size: 24px;
-        border-radius: 8px;
-        min-height: 34px;
+        min-height: var(--line-height);
         width: fit-content;
 
         &:focus-within {
-            .et__input {
-                opacity: 1;
-            }
-
-            .et__title {
-                opacity: 0
-            }
-        }
-
-        &--empty:focus-within {
-            .et__title {
-                opacity: 1;
+            .et__input:empty::before {
                 opacity: 0.4;
             }
         }
 
-        &__title, &__input {
+        &__input {
+            display: block;
             font-family: -apple-system, system-ui, sans-serif;
-            font-size: 24px;
-            line-height: 1.4;
+            font-size: var(--font-size);
+            line-height: var(--line-height);
             font-weight: 500;
+            width: 100%;
+            min-height: var(--line-height);
+            min-width: var(--min-width, 100px);
             color: var(--primary);
             margin: 0;
             padding: 0;
-            /* transition: opacity 0.2s ease; */
-        }
-
-        &__title {
-            display: inline-flex;
-        }
-
-        &__input {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            word-break: break-all;
+            position: relative;
             background: transparent;
             border: 0;
             border-radius: 0;
-            opacity: 0;
+            overflow: hidden;
+            resize: none;
 
             &:focus {
                 outline: 0;
+            }
+
+            &:empty::before {
+                content: attr(data-placeholder);
+                transition: opacity 0.2s ease;
             }
         }
     }
