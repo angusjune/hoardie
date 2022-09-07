@@ -1,5 +1,6 @@
 <script>
-    import Switch from './Switch.svelte';
+    import ToggleRow from './ToggleRow.svelte';
+    import LinkRow from './LinkRow.svelte';
     
     let closeIfNoTabsLeft = false;
 
@@ -11,6 +12,22 @@
         const closeIfNoTabsLeft = event.detail.checked;
         chrome.storage.sync.set({ closeIfNoTabsLeft });
     }
+
+    const localeCloseIfEmpty  = chrome.i18n.getMessage('option_close_if_empty') || "Close Hoardie if there's no tabs left";
+    const localeEditShortcuts = chrome.i18n.getMessage('option_edit_shortcuts') || "Edit shortcuts";
 </script>
 
-<Switch on={closeIfNoTabsLeft} on:change={onCloseIfNoTabsLeftChange}>Close hoardie if there's no tabs left</Switch>
+<ToggleRow :on={closeIfNoTabsLeft} on:change={onCloseIfNoTabsLeftChange}>{localeCloseIfEmpty}</ToggleRow>
+<hr />
+<LinkRow href="chrome://extensions/shortcuts">{localeEditShortcuts}</LinkRow>
+
+<style lang="scss" scoped>
+    @use 'base';
+    @include base.core-styles();
+
+    hr {
+        border: 0;
+        border-bottom: 0.5px solid rgba(0,0,0,.08);
+        margin: 0;
+    }
+</style>
