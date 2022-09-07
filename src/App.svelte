@@ -142,7 +142,6 @@
     @include base.core-styles();
 
     :global(body) {
-        color: var(--primary);
         background: var(--background);
     }
 

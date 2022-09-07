@@ -11,8 +11,10 @@ $themes: (
         'theme-secondary': color.change(#5285EC, $alpha: 0.2),
         'icon-ink': #444,
         'ripple': rgba(0, 0, 0, 0.035),
-        'switch-checked-bar-color': color.adjust(#5285EC, $lightness: +20%),
-        'switch-unchecked-bar-color': #bdc1c6,
+        'toggle-knob-off-color': #fff,
+        'toggle-track-off-color': #d1d2d5,
+        'toggle-knob-on-color': #1a73e8,
+        'toggle-track-on-color': #7fabe6,
     ),
     dark: (
         'background': #202124,
@@ -23,8 +25,10 @@ $themes: (
         'theme-secondary': color.change(#8cb6f6, $alpha: 0.2),
         'icon-ink': #ccc,
         'ripple': rgba(255, 255, 255, 0.15),
-        'switch-checked-bar-color': color.adjust(#8cb6f6, $lightness: +20%),
-        'switch-unchecked-bar-color': #9AA0A6,
+        'toggle-knob-off-color': #fff,
+        'toggle-track-off-color': #9aa0a6,
+        'toggle-knob-on-color': #8ab4f8,
+        'toggle-track-on-color': #b7ccee,
     )
 );
 
@@ -33,6 +37,10 @@ $themes: (
 }
 
 @mixin core-styles() {
+    :global(body) {
+        margin: 0;
+        color: var(--primary);
+    }
     @each $theme, $map in $themes {
         :global(body.theme--#{$theme}) {
             $theme-map: () !global;
