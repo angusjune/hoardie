@@ -35,5 +35,11 @@
     "empty_title": {
         "description": "message to display if there's no tab groups.",
         "message": "无事发生"
+    },
+    "option_close_if_empty": {
+        "message": "若 Hoardie 中无任何标签页，自动关闭它"
+    },
+    "option_edit_shortcuts": {
+        "message": "编辑快捷键"
     }
 }

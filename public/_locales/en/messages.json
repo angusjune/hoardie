@@ -38,5 +38,11 @@
     "empty_title": {
         "description": "message to display if there's no tab groups.",
         "message": "It's quiet here."
+    },
+    "option_close_if_empty": {
+        "message": "Close Hoardie if there's no tabs left"
+    },
+    "option_edit_shortcuts": {
+        "message": "Edit shortcuts"
     }
 }
