@@ -252,7 +252,7 @@ function createTab(tabInfo, pinned = false) {
         tabInfo: tabInfo
     };
 }
-
+const version = chrome.runtime.getManifest().version;
 const defaultSettings = { closeIfNoTabsLeft: false };
 
 export { createTabGroup, createTab, TabGroup, Tab, TabGroups, defaultSettings };

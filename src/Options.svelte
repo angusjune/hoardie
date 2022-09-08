@@ -2,7 +2,13 @@
     import ToggleRow from './ToggleRow.svelte';
     import LinkRow from './LinkRow.svelte';
     
+    let settings;
     let closeIfNoTabsLeft = false;
+
+    chrome.runtime.sendMessage({ type: 'getSettings' }, result => {
+        settings = result;
+        console.log(settings);
+    });
 
     chrome.storage.sync.get({ closeIfNoTabsLeft: false }, props => {
         closeIfNoTabsLeft = props.closeIfNoTabsLeft;
@@ -17,13 +23,21 @@
     const localeEditShortcuts = chrome.i18n.getMessage('option_edit_shortcuts') || "Edit shortcuts";
 </script>
 
-<ToggleRow :on={closeIfNoTabsLeft} on:change={onCloseIfNoTabsLeftChange}>{localeCloseIfEmpty}</ToggleRow>
+<ToggleRow on={closeIfNoTabsLeft} on:change={onCloseIfNoTabsLeftChange}>{localeCloseIfEmpty}</ToggleRow>
 <hr />
 <LinkRow href="chrome://extensions/shortcuts">{localeEditShortcuts}</LinkRow>
 
 <style lang="scss" scoped>
     @use 'base';
     @include base.core-styles();
+
+    :global(body.theme--light) {
+        background: #fff;
+    }
+
+    :global(body.theme--dark) {
+        background: #292a2d;
+    }
 
     hr {
         border: 0;

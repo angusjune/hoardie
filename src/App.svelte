@@ -1,11 +1,12 @@
 <script>
+    import { defaultSettings } from './data.js';
     import TabGroup from './TabGroup.svelte';
     import Empty from './Empty.svelte';
     import SideMenu from './SideMenu.svelte';
     import SideMenuItem from './SideMenuItem.svelte';
 
     let tabGroups = [];
-    let closeIfNoTabsLeft = false;
+    let settings = defaultSettings;
     
     chrome.runtime.sendMessage({ type: 'getTabGroups' }, result => {
         tabGroups = result;
@@ -13,7 +14,7 @@
     });
 
     chrome.runtime.sendMessage({ type: 'getSettings' }, result => {
-        closeIfNoTabsLeft = result.closeIfNoTabsLeft
+        settings = result;
     });
 
     chrome.storage.onChanged.addListener((changes, namespace) => {
@@ -22,8 +23,10 @@
                 tabGroups = changes.tabGroups.newValue;
             }
         } else if (namespace === 'sync') {
-            if (changes.closeIfNoTabsLeft) {
-                closeIfNoTabsLeft = changes.closeIfNoTabsLeft.newValue;
+            if (changes) {
+                for (const key in changes) {
+                    settings[key] = changes[key].newValue;
+                }
             }
         }
     });
@@ -33,7 +36,7 @@
         // get url of the app
         const appUrl = chrome.runtime.getURL('index.html');
 
-        if (tabGroups.length <= 0 && closeIfNoTabsLeft) {     
+        if (tabGroups?.length <= 0 && settings?.closeIfNoTabsLeft) {     
             chrome.tabs.query({}, tabs => {
                 // create a new tab if there's no other tabs
                 if (tabs.length <= 1) {

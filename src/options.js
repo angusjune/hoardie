@@ -2,7 +2,7 @@
 
 import Options from './Options.svelte';
 
-const isBrowserDark = window.matchMedia("(prefers-color-scheme: dark)").matches || chrome.extension.inIncognitoContext;
+const isBrowserDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 if (isBrowserDark) { 
 	document.body.classList.add('theme--dark');
 } else { 
